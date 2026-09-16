@@ -1,0 +1,29 @@
+server:
+  port: ${APP_PORT:8082}
+spring:
+  application:
+    name: storage-service
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_ADDR:192.168.186.131:8848}
+        enabled: ${NACOS_ENABLED:true}
+  datasource:
+    url: jdbc:mysql://${DB_HOST:192.168.186.131}:${DB_PORT:3306}/seata_storage?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: ${DB_USER:root}
+    password: ${DB_PASSWORD:123456}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+seata:
+  enabled: true
+  tx-service-group: demo_tx_group
+  registry:
+    type: file
+  service:
+    vgroup-mapping:
+      demo_tx_group: default
+    grouplist:
+      default: ${SEATA_ADDR:192.168.186.131:8091}
+  data-source-proxy-mode: AT
