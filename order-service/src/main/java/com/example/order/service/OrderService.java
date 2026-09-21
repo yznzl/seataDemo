@@ -55,7 +55,16 @@ public class OrderService {
             order.setDecisionNumber(number);
             order.setStatus(STATUS_CREATED);
             orderMapper.insert(order);
-            storageClient.deduct(1);
+            Map<String, Object> deduct = storageClient.deduct(1);
+            System.out.println(deduct.get("stock"));
+            // TEMP TEST: n=98 时持有全局锁 2s，用于验证锁重试窗口（验证后删除）
+            if (number == 98) {
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                }
+            }
             if ((number & 1) == 1) {
                 throw new IllegalStateException(ODD_NUMBER_ERROR);
             }

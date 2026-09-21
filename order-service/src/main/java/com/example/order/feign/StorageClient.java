@@ -1,6 +1,7 @@
 package com.example.order.feign;
 
 import com.example.order.config.SeataFeignConfig;
+import com.example.order.fallback.StorageClientFallback;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,7 +13,8 @@ import java.util.Map;
 @FeignClient(
         name = "storage-service",
         url = "${storage.service.url:http://127.0.0.1:8082}",
-        configuration = SeataFeignConfig.class)
+        configuration = SeataFeignConfig.class,
+        fallback = StorageClientFallback.class)
 public interface StorageClient {
     /**
      * 扣减库存。

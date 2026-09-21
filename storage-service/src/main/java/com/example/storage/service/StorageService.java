@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /** 库存业务服务。 */
 @Service
@@ -50,13 +51,24 @@ public class StorageService {
             throw exception;
         }
     }
-
-    /**
+    private static AtomicInteger count = new AtomicInteger(0);    /**
      * 查询当前库存。
      *
      * @return 可用库存
      */
     public int stock() {
+        int currentCount = count.incrementAndGet();
+
+        if (currentCount <= 5) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new RuntimeException(e);
+            }
+        }else if (currentCount >6) {
+            count = new AtomicInteger(0);
+        }
         StorageDO storage = storageMapper.selectOne(
                 new QueryWrapper<StorageDO>().eq("id", STOCK_RECORD_ID));
         if (storage == null || storage.getStock() == null) {

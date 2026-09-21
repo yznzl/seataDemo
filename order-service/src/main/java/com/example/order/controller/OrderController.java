@@ -1,7 +1,8 @@
 package com.example.order.controller;
 
+import com.alibaba.csp.sentinel.annotation.SentinelResource;
+import com.example.order.fallback.SentinelFallback;
 import com.example.order.service.OrderService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,16 +32,23 @@ public class OrderController {
      * @return 事务处理结果
      */
     @GetMapping("/run")
+    @SentinelResource(
+            value = "demoRun",
+            fallbackClass = SentinelFallback.class,
+            fallback = "fallback",
+            blockHandlerClass = SentinelFallback.class,
+            blockHandler = "blockHandler"
+    )
     public ResponseEntity<Map<String, Object>> run(
-            @RequestParam(value = "n", required = false) Integer decisionNumber) {
-        try {
+            @RequestParam(value = "n", required = false) Integer decisionNumber) throws InterruptedException {
+//        try {
             return ResponseEntity.ok(orderService.run(decisionNumber));
-        } catch (IllegalArgumentException exception) {
-            return ResponseEntity.badRequest().body(errorResponse("INVALID_REQUEST", exception.getMessage()));
-        } catch (RuntimeException exception) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(orderService.rollbackResponse(exception));
-        }
+//        } catch (IllegalArgumentException exception) {
+//            return ResponseEntity.badRequest().body(errorResponse("INVALID_REQUEST", exception.getMessage()));
+//        } catch (RuntimeException exception) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                    .body(orderService.rollbackResponse(exception));
+//        }
     }
 
     /**

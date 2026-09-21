@@ -8,6 +8,29 @@ spring:
       discovery:
         server-addr: 192.168.186.131:8848
         enabled: ${NACOS_ENABLED:true}
+    sentinel:
+      # Sentinel 控制台地址，控制台通过 Nacos V2 接口向配置中心推送规则。
+      enabled: ${SENTINEL_ENABLED:true}
+      eager: true
+      transport:
+        dashboard: ${SENTINEL_DASHBOARD:192.168.186.131:8858}
+        port: ${SENTINEL_CLIENT_PORT:8719}
+      datasource:
+        # Push 模式：应用只监听 Nacos，规则由控制台写入 Nacos。
+        flow:
+          nacos:
+            server-addr: ${NACOS_ADDR:192.168.186.131:8848}
+            data-id: ${spring.application.name}-flow-rules
+            group-id: SENTINEL_GROUP
+            data-type: json
+            rule-type: flow
+        degrade:
+          nacos:
+            server-addr: ${NACOS_ADDR:192.168.186.131:8848}
+            data-id: ${spring.application.name}-degrade-rules
+            group-id: SENTINEL_GROUP
+            data-type: json
+            rule-type: degrade
   datasource:
     url: jdbc:mysql://${DB_HOST:192.168.186.131}:${DB_PORT:3306}/seata_order?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: ${DB_USER:root}
@@ -16,6 +39,10 @@ spring:
 storage:
   service:
     url: ${STORAGE_SERVICE_URL:http://127.0.0.1:8082}
+feign:
+  circuitbreaker:
+    # Spring Cloud 2021.0.x 起默认关闭；开启后 @FeignClient(fallback=...) 才生效
+    enabled: true
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true
